@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIMAN 力曼經銷商 - 亞曼老師</title>
+    
+    <!-- 引入 Tailwind CSS (樣式庫) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React 和 ReactDOM (核心框架) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 引入 Babel (負責編譯頁面內的 React 代碼) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 自定義動畫樣式 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        /* 隱藏滾動條但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // 從全局變量中獲取 React Hook
+        const { useState, useEffect } = React;
+
+        // --- 內嵌圖標組件 (解決外部 CDN 加載錯誤的問題) ---
+        // 這些是將 Lucide Icons 直接轉換為 React 元件，確保 100% 可用
+
+        const Sparkles = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 9h4"/><path d="M3 5h4"/></svg>
+        );
+
+        const MessageCircle = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+        );
+
+        const Phone = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        );
+
+        const ArrowRight = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        );
+
+        const Star = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        );
+
+        const ChevronDown = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m6 9 6 6 6-6"/></svg>
+        );
+
+        const Check = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20 6 9 17l-5-5"/></svg>
+        );
+
+        const Menu = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        );
+
+        const X = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        );
+
+        const Instagram = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        );
+
+        const Send = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        );
+
+        const Droplet = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+        );
+
+        const Sun = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        );
+
+        const Leaf = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+        );
+
+        // --- 結束內嵌圖標 ---
+
+        // 模擬產品資料 (使用本地圖片路徑)
+        const PRODUCTS = [
+            {
+                id: 'incellderm',
+                name: 'INCELLDERM 映皙美',
+                title: '喚醒肌膚原本的光采',
+                description: '獨家專利積雪草海洋原萃，打造韓國最流行的水光肌。透過微脂囊技術，讓保養成分直達肌底。',
+                icon: <Sparkles className="w-8 h-8 text-amber-500" />,
+                color: 'bg-amber-50',
+                tags: ['光澤肌', '抗衰老', '核心系列'],
+                // 圖片路徑：請確保您的資料夾內有 incellderm.jpg
+                image: './incellderm.jpg'
+            },
+            {
+                id: 'botalab',
+                name: 'BOTALAB 博萃瓶',
+                title: '純素保養的植萃力量',
+                description: '與自然共存的純素美容品牌。從頭髮護理到身體保養，給予最純淨的呵護。',
+                icon: <Leaf className="w-8 h-8 text-green-600" />,
+                color: 'bg-green-50',
+                tags: ['洗護髮', '純素認證', '身體保養'],
+                // 圖片路徑：請確保您的資料夾內有 botalab.jpg
+                image: './botalab.jpg'
+            },
+            {
+                id: 'lifening',
+                name: 'LIFENING 來沛寧',
+                title: '由內而外的健康美',
+                description: '不僅是外在保養，更注重內在循環。膠原蛋白與健康機能食品，讓美麗更加持久。',
+                icon: <Sun className="w-8 h-8 text-orange-500" />,
+                color: 'bg-orange-50',
+                tags: ['內在保養', '膠原蛋白', '健康機能'],
+                // 圖片路徑：請確保您的資料夾內有 lifening.jpg
+                image: './lifening.jpg'
+            }
+        ];
+
+        // 互動測驗資料
+        const QUIZ_QUESTIONS = [
+            {
+                question: "您目前最在意的肌膚困擾是？",
+                options: ["乾燥無光澤", "細紋與鬆弛", "敏感泛紅", "頭髮稀疏/落髮"]
+            },
+            {
+                question: "您喜歡的保養品以什麼為主？",
+                options: ["強調高科技滲透", "強調天然純素成分", "注重內在調理"]
+            },
+            {
+                question: "您希望達到的理想狀態是？",
+                options: ["韓系水光玻璃肌", "健康豐盈秀髮", "整體氣色紅潤"]
+            }
+        ];
+
+        function RimanDistributorPage() {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [activeTab, setActiveTab] = useState('incellderm');
+            const [showQuiz, setShowQuiz] = useState(false);
+            const [quizStep, setQuizStep] = useState(0);
+            const [quizResult, setQuizResult] = useState(null);
+            const [scrolled, setScrolled] = useState(false);
+
+            // 監聽滾動以改變導航欄樣式
+            useEffect(() => {
+                const handleScroll = () => {
+                    setScrolled(window.scrollY > 50);
+                };
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const handleQuizAnswer = (index) => {
+                if (quizStep < QUIZ_QUESTIONS.length - 1) {
+                    setQuizStep(quizStep + 1);
+                } else {
+                    // 簡單的結果邏輯 (模擬)
+                    setQuizResult(PRODUCTS[index % 3]);
+                }
+            };
+
+            const resetQuiz = () => {
+                setQuizStep(0);
+                setQuizResult(null);
+                setShowQuiz(false);
+            };
+
+            const scrollToSection = (id) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+                setIsMenuOpen(false);
+            };
+
+            return (
+                <div className="font-sans text-stone-800 bg-stone-50 min-h-screen selection:bg-amber-200">
+                
+                {/* --- 導航欄 --- */}
+                <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
+                    <div className="container mx-auto px-6 flex justify-between items-center">
+                    <div className="text-2xl font-serif font-bold tracking-wide text-stone-900 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+                        RIMAN <span className="text-amber-600 text-sm font-sans tracking-normal ml-1">Distributor</span>
+                    </div>
+                    
+                    {/* Desktop Menu */}
+                    <div className="hidden md:flex space-x-8 items-center font-medium text-sm tracking-wide">
+                        <button onClick={() => scrollToSection('about')} className="hover:text-amber-600 transition">關於我</button>
+                        <button onClick={() => scrollToSection('products')} className="hover:text-amber-600 transition">熱門產品</button>
+                        <button onClick={() => scrollToSection('quiz')} className="hover:text-amber-600 transition">肌膚測驗</button>
+                        <button onClick={() => scrollToSection('business')} className="hover:text-amber-600 transition">事業機會</button>
+                        <button onClick={() => scrollToSection('contact')} className="px-5 py-2 bg-stone-900 text-white rounded-full hover:bg-stone-700 transition">
+                        預約諮詢
+                        </button>
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <div className="md:hidden">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        {isMenuOpen ? <X /> : <Menu />}
+                        </button>
+                    </div>
+                    </div>
+                </nav>
+
+                {/* Mobile Menu Overlay */}
+                {isMenuOpen && (
+                    <div className="fixed inset-0 z-40 bg-white pt-24 px-6 md:hidden">
+                    <div className="flex flex-col space-y-6 text-xl font-medium text-center">
+                        <button onClick={() => scrollToSection('about')}>關於我</button>
+                        <button onClick={() => scrollToSection('products')}>熱門產品</button>
+                        <button onClick={() => scrollToSection('quiz')}>肌膚測驗</button>
+                        <button onClick={() => scrollToSection('business')}>事業機會</button>
+                        <button onClick={() => scrollToSection('contact')} className="text-amber-600">聯絡我們</button>
+                    </div>
+                    </div>
+                )}
+
+                {/* --- Hero Section (主視覺) --- */}
+                <header className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+                    <div className="absolute inset-0 z-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-amber-200 rounded-full blur-3xl opacity-20"></div>
+                    <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 bg-rose-200 rounded-full blur-3xl opacity-20"></div>
+
+                    <div className="container mx-auto px-6 relative z-10">
+                    <div className="max-w-3xl mx-auto text-center">
+                        <div className="inline-block px-3 py-1 mb-6 border border-stone-300 rounded-full text-xs font-semibold tracking-widest uppercase text-stone-500 bg-white/50 backdrop-blur-sm">
+                        K-Beauty No.1 Brand
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight mb-6 text-stone-900">
+                        喚醒肌膚<br className="md:hidden" />原本的<span className="text-amber-600 italic">光采</span>
+                        </h1>
+                        <p className="text-lg md:text-xl text-stone-600 mb-10 leading-relaxed">
+                        透過韓國力曼 Riman 的獨家專利技術，體驗前所未有的水光肌奇蹟。<br className="hidden md:block"/>
+                        我是董事領導人 亞曼，帶您找回自信美麗。
+                        </p>
+                        <div className="flex flex-col md:flex-row justify-center gap-4">
+                        <button onClick={() => scrollToSection('quiz')} className="px-8 py-3 bg-stone-900 text-white rounded-full hover:bg-stone-800 transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <Sparkles className="w-4 h-4" /> 
+                            開始肌膚檢測
+                        </button>
+                        <button onClick={() => scrollToSection('contact')} className="px-8 py-3 bg-white text-stone-900 border border-stone-200 rounded-full hover:bg-stone-50 transition flex items-center justify-center gap-2">
+                            <MessageCircle className="w-4 h-4" />
+                            免費索取試用
+                        </button>
+                        </div>
+                    </div>
+                    </div>
+                </header>
+
+                {/* --- 個人介紹 (About Me) --- */}
+                <section id="about" className="py-20 bg-white">
+                    <div className="container mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-center gap-12">
+                        <div className="md:w-1/2 relative">
+                        {/* 圖片路徑：請確保您的資料夾內有 profile.jpg */}
+                        <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-stone-200 relative shadow-2xl">
+                            <img 
+                                src="./profile.jpg" 
+                                alt="亞曼老師" 
+                                className="object-cover w-full h-full hover:scale-105 transition duration-700" 
+                                onError={(e) => {e.target.style.display='none'; e.target.parentNode.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-gray-500 bg-gray-100 p-4 text-center">請確認 profile.jpg 已放入同資料夾</div>'}}
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                            <p className="font-serif text-2xl">亞曼</p>
+                            <p className="text-sm opacity-90">力曼董事領導人 / 亞曼老師</p>
+                            </div>
+                        </div>
+                        </div>
+                        <div className="md:w-1/2 space-y-6">
+                        <h2 className="text-3xl font-serif font-bold text-stone-900">不僅是銷售，更是<br/>您美麗旅程的夥伴</h2>
+                        <p className="text-stone-600 leading-relaxed">
+                            遇見力曼之前，我也曾為暗沉與敏感肌膚所苦。直到體驗了 Incellderm 的微脂囊技術，我親眼見證了肌膚的改變。
+                        </p>
+                        <p className="text-stone-600 leading-relaxed">
+                            現在，作為團隊的董事領導人，我的使命不只是分享產品，而是透過專業的諮詢與陪伴，幫助每一位想要變美的您，建立正確的保養觀念，養出韓劇女主角般的健康水光肌。
+                        </p>
+                        <div className="grid grid-cols-2 gap-6 pt-4">
+                            <div>
+                            <h3 className="text-3xl font-bold text-amber-600">500+</h3>
+                            <p className="text-stone-500 text-sm">協助客戶改善肌膚</p>
+                            </div>
+                            <div>
+                            <h3 className="text-3xl font-bold text-amber-600">Top 10</h3>
+                            <p className="text-stone-500 text-sm">團隊銷售業績</p>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </section>
+
+                {/* --- 互動式肌膚測驗 (Quiz) --- */}
+                <section id="quiz" className="py-20 bg-stone-900 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
+                    
+                    <div className="container mx-auto px-6 relative z-10">
+                    <div className="max-w-2xl mx-auto text-center">
+                        {!showQuiz ? (
+                        <div className="space-y-6">
+                            <span className="text-amber-400 font-semibold tracking-widest uppercase text-sm">Interactive Quiz</span>
+                            <h2 className="text-3xl md:text-4xl font-serif font-bold">不知道該從何開始？</h2>
+                            <p className="text-stone-300">花 30 秒回答幾個簡單問題，讓亞曼老師為您推薦最適合的保養組合。</p>
+                            <button 
+                            onClick={() => setShowQuiz(true)}
+                            className="px-8 py-3 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition transform hover:scale-105"
+                            >
+                            開始測驗
+                            </button>
+                        </div>
+                        ) : !quizResult ? (
+                        <div className="bg-white text-stone-900 p-8 rounded-2xl shadow-xl">
+                            <div className="mb-4 flex justify-between text-sm text-stone-500">
+                            <span>問題 {quizStep + 1} / {QUIZ_QUESTIONS.length}</span>
+                            <span>{(quizStep / QUIZ_QUESTIONS.length) * 100}%</span>
+                            </div>
+                            <div className="w-full bg-stone-200 h-1 mb-8 rounded-full">
+                            <div className="bg-amber-600 h-1 rounded-full transition-all duration-300" style={{width: `${((quizStep + 1) / QUIZ_QUESTIONS.length) * 100}%`}}></div>
+                            </div>
+                            
+                            <h3 className="text-2xl font-bold mb-8">{QUIZ_QUESTIONS[quizStep].question}</h3>
+                            <div className="space-y-3">
+                            {QUIZ_QUESTIONS[quizStep].options.map((option, idx) => (
+                                <button
+                                key={idx}
+                                onClick={() => handleQuizAnswer(idx)}
+                                className="w-full p-4 border border-stone-200 rounded-xl hover:bg-amber-50 hover:border-amber-500 hover:text-amber-700 transition text-left flex justify-between items-center group"
+                                >
+                                {option}
+                                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+                                </button>
+                            ))}
+                            </div>
+                        </div>
+                        ) : (
+                        <div className="bg-white text-stone-900 p-8 rounded-2xl shadow-xl animate-fade-in">
+                            <div className="text-amber-600 mb-4 flex justify-center">{quizResult.icon}</div>
+                            <h3 className="text-sm font-bold text-stone-500 uppercase tracking-widest mb-2">專屬推薦</h3>
+                            <h2 className="text-3xl font-serif font-bold mb-4">{quizResult.name}</h2>
+                            <p className="text-stone-600 mb-6">{quizResult.description}</p>
+                            <div className="bg-stone-50 p-4 rounded-lg mb-8 text-left">
+                            <h4 className="font-bold mb-2 flex items-center gap-2"><Check className="w-4 h-4 text-green-500"/> 為什麼適合您？</h4>
+                            <ul className="text-sm text-stone-600 space-y-1">
+                                {quizResult.tags.map((tag, i) => (
+                                <li key={i}>• 符合您對「{tag}」的需求</li>
+                                ))}
+                            </ul>
+                            </div>
+                            <div className="flex gap-4 justify-center">
+                            <button onClick={() => {scrollToSection('contact'); resetQuiz();}} className="px-6 py-3 bg-stone-900 text-white rounded-full hover:bg-stone-700 transition">
+                                預約體驗此系列
+                            </button>
+                            <button onClick={resetQuiz} className="px-6 py-3 text-stone-500 hover:text-stone-900">
+                                重新測驗
+                            </button>
+                            </div>
+                        </div>
+                        )}
+                    </div>
+                    </div>
+                </section>
+
+                {/* --- 產品系列介紹 (Products) --- */}
+                <section id="products" className="py-20 bg-stone-50">
+                    <div className="container mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl font-serif font-bold text-stone-900 mb-4">韓國力曼 Riman 三大品牌</h2>
+                        <p className="text-stone-600">滿足全家人的保養需求，從頭皮到肌膚的頂級呵護</p>
+                    </div>
+
+                    <div className="flex flex-wrap justify-center gap-4 mb-12">
+                        {PRODUCTS.map((product) => (
+                        <button
+                            key={product.id}
+                            onClick={() => setActiveTab(product.id)}
+                            className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                            activeTab === product.id 
+                            ? 'bg-stone-900 text-white shadow-lg' 
+                            : 'bg-white text-stone-600 hover:bg-stone-100'
+                            }`}
+                        >
+                            {product.name}
+                        </button>
+                        ))}
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+                        {PRODUCTS.map((product) => (
+                        product.id === activeTab && (
+                            <React.Fragment key={product.id}>
+                            <div className={`rounded-3xl p-8 md:p-12 ${product.color} relative overflow-hidden min-h-[400px] flex flex-col justify-center animate-fade-in`}>
+                                {/* 裝飾性背景圖標 */}
+                                <div className="absolute top-0 right-0 p-8 opacity-10 transform scale-150">
+                                    {product.icon}
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold mb-4 text-stone-800">{product.title}</h3>
+                                <p className="text-stone-600 mb-8 leading-relaxed">
+                                {product.description}
+                                </p>
+                                <div className="flex flex-wrap gap-2 mb-8">
+                                {product.tags.map((tag, i) => (
+                                    <span key={i} className="bg-white/80 px-3 py-1 rounded-md text-sm font-medium text-stone-600">
+                                    #{tag}
+                                    </span>
+                                ))}
+                                </div>
+                                <button className="self-start text-stone-900 font-bold border-b-2 border-stone-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">
+                                查看詳細產品介紹
+                                </button>
+                            </div>
+                            <div className="relative h-[400px] rounded-3xl overflow-hidden shadow-2xl group">
+                                {/* 使用本地圖片路徑 */}
+                                <img 
+                                src={product.image}
+                                alt={product.name} 
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                onError={(e) => {e.target.style.display='none'; e.target.parentNode.innerHTML += `<div class="absolute inset-0 flex items-center justify-center text-gray-500 bg-gray-100 p-4 text-center">請確認 ${product.id}.jpg 已放入同資料夾</div>`}}
+                                />
+                                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition duration-500"></div>
+                            </div>
+                            </React.Fragment>
+                        )
+                        ))}
+                    </div>
+                    </div>
+                </section>
+
+                {/* --- 事業機會 (Business) --- */}
+                <section id="business" className="py-20 bg-white">
+                    <div className="container mx-auto px-6">
+                    <div className="bg-stone-900 rounded-3xl p-8 md:p-16 text-white text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+                        
+                        <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6 relative z-10">開啟您的美麗事業</h2>
+                        <p className="text-stone-300 max-w-2xl mx-auto mb-10 text-lg relative z-10">
+                        力曼不僅改變了我的肌膚，更改變了我的生活。
+                        <br/>無需囤貨、完善的教育系統、全球化市場。如果您也想增加收入，或尋找一份有熱情的事業，歡迎加入亞曼老師的團隊。
+                        </p>
+                        
+                        <div className="grid md:grid-cols-3 gap-6 mb-12 relative z-10">
+                        <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/10">
+                            <Star className="w-8 h-8 text-amber-400 mx-auto mb-4" />
+                            <h3 className="font-bold text-lg mb-2">0 囤貨壓力</h3>
+                            <p className="text-sm text-stone-300">公司統一出貨，只需專注分享體驗</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/10">
+                            <MessageCircle className="w-8 h-8 text-amber-400 mx-auto mb-4" />
+                            <h3 className="font-bold text-lg mb-2">手把手教學</h3>
+                            <p className="text-sm text-stone-300">從產品知識到社群經營，完整培訓</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/10">
+                            <Droplet className="w-8 h-8 text-amber-400 mx-auto mb-4" />
+                            <h3 className="font-bold text-lg mb-2">高回購率</h3>
+                            <p className="text-sm text-stone-300">產品會說話，建立穩定的被動收入</p>
+                        </div>
+                        </div>
+
+                        <button onClick={() => scrollToSection('contact')} className="relative z-10 px-8 py-3 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition font-bold shadow-lg shadow-amber-900/50">
+                        了解經銷商計畫
+                        </button>
+                    </div>
+                    </div>
+                </section>
+
+                {/* --- 聯絡表單 (Contact) --- */}
+                <section id="contact" className="py-20 bg-stone-50">
+                    <div className="container mx-auto px-6">
+                    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+                        <div className="md:w-2/5 bg-stone-100 p-8 flex flex-col justify-between">
+                        <div>
+                            <h3 className="text-2xl font-bold text-stone-900 mb-6">預約諮詢</h3>
+                            <p className="text-stone-600 mb-8">
+                            無論是想改善膚況，或是了解代理制度，都歡迎填寫表單，亞曼老師將盡快與您聯繫。
+                            </p>
+                            <div className="space-y-4">
+                            <div className="flex items-center gap-3 text-stone-700">
+                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-green-500">
+                                <MessageCircle size={20} />
+                                </div>
+                                <div>
+                                <p className="text-xs text-stone-500">LINE ID</p>
+                                <p className="font-medium">@aman_beauty</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-stone-700">
+                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-stone-800">
+                                <Phone size={20} />
+                                </div>
+                                <div>
+                                <p className="text-xs text-stone-500">諮詢專線</p>
+                                <p className="font-medium">0912-345-678</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-stone-700">
+                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-pink-600">
+                                <Instagram size={20} />
+                                </div>
+                                <div>
+                                <p className="text-xs text-stone-500">Instagram</p>
+                                <p className="font-medium">@aman.riman_tw</p>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div className="mt-8 pt-8 border-t border-stone-200">
+                            <p className="text-xs text-stone-400">© 2024 Independent Riman Distributor</p>
+                        </div>
+                        </div>
+
+                        <div className="md:w-3/5 p-8 md:p-12">
+                        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert("感謝您的填寫！亞曼老師會盡快聯絡您。"); }}>
+                            <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-2">姓名</label>
+                                <input type="text" className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition" placeholder="王小美" required />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-2">電話</label>
+                                <input type="tel" className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition" placeholder="0912345678" required />
+                            </div>
+                            </div>
+                            <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-2">想諮詢的項目</label>
+                            <select className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition">
+                                <option>我想改善肌膚狀況（產品諮詢）</option>
+                                <option>我想了解經銷代理（事業機會）</option>
+                                <option>我想索取試用包體驗</option>
+                            </select>
+                            </div>
+                            <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-2">留言備註</label>
+                            <textarea rows="4" className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition" placeholder="請簡述您的需求..."></textarea>
+                            </div>
+                            <button type="submit" className="w-full py-4 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition font-bold flex justify-center items-center gap-2">
+                            <Send className="w-4 h-4" /> 送出諮詢表單
+                            </button>
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+                </section>
+
+                {/* --- Sticky CTA Buttons (Mobile) --- */}
+                <div className="fixed bottom-0 left-0 w-full bg-white border-t border-stone-200 p-4 md:hidden z-40 flex gap-4 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+                    <button className="flex-1 bg-green-500 text-white py-3 rounded-lg font-bold flex justify-center items-center gap-2 shadow-lg hover:bg-green-600 active:scale-95 transition">
+                    <MessageCircle className="w-5 h-5" /> 加 LINE 諮詢
+                    </button>
+                    <button className="flex-1 bg-stone-900 text-white py-3 rounded-lg font-bold flex justify-center items-center gap-2 shadow-lg hover:bg-stone-800 active:scale-95 transition">
+                    <Sparkles className="w-5 h-5" /> 領取試用
+                    </button>
+                </div>
+
+                {/* --- Floating Action Button (Desktop) --- */}
+                <div className="hidden md:flex flex-col gap-4 fixed bottom-8 right-8 z-50">
+                    <button className="w-14 h-14 bg-green-500 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-green-600 hover:scale-110 transition duration-300 group relative">
+                    <MessageCircle className="w-7 h-7" />
+                    <span className="absolute right-16 bg-stone-800 text-white text-xs py-1 px-3 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">加 LINE 好友</span>
+                    </button>
+                    <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="w-14 h-14 bg-white text-stone-800 border border-stone-200 rounded-full shadow-lg flex items-center justify-center hover:bg-stone-50 hover:scale-110 transition duration-300">
+                    <ChevronDown className="w-6 h-6 transform rotate-180" />
+                    </button>
+                </div>
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<RimanDistributorPage />);
+    </script>
+</body>
+</html>
